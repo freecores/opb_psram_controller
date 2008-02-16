@@ -38,7 +38,9 @@ entity opb_psram is
       C_FAMILY         : string                    := "spartan-3";
       -- user generic
       C_PSRAM_DQ_WIDTH : integer                   := 16;
-      C_PSRAM_A_WIDTH  : integer                   := 23);
+      C_PSRAM_A_WIDTH  : integer                   := 23;
+      C_PSRAM_LATENCY  : integer range 0 to 7      := 3;
+      C_DRIVE_STRENGTH : integer range 0 to 3      := 1);
   port
     (
       OPB_ABus        : in  std_logic_vector(0 to C_OPB_AWIDTH-1);
@@ -118,7 +120,9 @@ architecture Behavioral of opb_psram is
       C_OPB_DWIDTH     : integer;
       C_FAMILY         : string;
       C_PSRAM_DQ_WIDTH : integer;
-      C_PSRAM_A_WIDTH  : integer);
+      C_PSRAM_A_WIDTH  : integer;
+      C_PSRAM_LATENCY  : integer range 0 to 7      := 3;
+      C_DRIVE_STRENGTH : integer range 0 to 3      := 1);
     port (
       OPB_ABus            : in  std_logic_vector(0 to C_OPB_AWIDTH-1);
       OPB_BE              : in  std_logic_vector(0 to C_OPB_DWIDTH/8-1);
@@ -275,7 +279,9 @@ begin
       C_OPB_DWIDTH     => C_OPB_DWIDTH,
       C_FAMILY         => C_FAMILY,
       C_PSRAM_DQ_WIDTH => C_PSRAM_DQ_WIDTH,
-      C_PSRAM_A_WIDTH  => C_PSRAM_A_WIDTH)
+      C_PSRAM_A_WIDTH  => C_PSRAM_A_WIDTH,
+      C_PSRAM_LATENCY  => C_PSRAM_LATENCY,
+      C_DRIVE_STRENGTH => C_DRIVE_STRENGTH)
     port map (
       OPB_ABus            => OPB_ABus,
       OPB_BE              => OPB_BE,
