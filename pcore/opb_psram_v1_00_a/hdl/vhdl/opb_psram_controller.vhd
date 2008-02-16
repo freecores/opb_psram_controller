@@ -15,8 +15,9 @@ entity opb_psram_controller is
     C_FAMILY         : string                        := "spartan-3";
     C_PSRAM_DQ_WIDTH : integer                       := 16;
     C_PSRAM_A_WIDTH  : integer                       := 23;
-    C_BCR_CONFIG     : std_logic_vector(15 downto 0) := "0001110100010111");
 
+    C_PSRAM_LATENCY  : integer range 0 to 7      := 3;
+    C_DRIVE_STRENGTH : integer range 0 to 3      := 1);
   port (
     OPB_ABus            : in  std_logic_vector(0 to C_OPB_AWIDTH-1);
     OPB_BE              : in  std_logic_vector(0 to C_OPB_DWIDTH/8-1);
@@ -68,6 +69,13 @@ architecture rtl of opb_psram_controller is
   signal write_data : std_logic_vector(31 downto 0);
   signal read_data  : std_logic_vector(15 downto 0);
   signal write_be   : std_logic_vector(3 downto 0);
+
+  -- Sync burst acess mode[BCR[15],all other values default
+  constant C_BCR_CONFIG     : std_logic_vector(15 downto 0) := ("00" &
+                                                               conv_std_logic_vector( C_PSRAM_LATENCY,3) &
+                                                               "10100" &
+                                                               conv_std_logic_vector( C_DRIVE_STRENGTH,2) &
+                                                               "1111");
   
 begin  -- rtl
 
@@ -190,13 +198,13 @@ begin  -- rtl
           Sln_xferAck         <= '0';   -- remove ack
           PSRAM_Mem_ADV_int   <= '1';   -- remove adress strobe
           PSRAM_Mem_A_int     <= (others => '0');
-          PSRAM_Mem_BE_int(0) <= not write_be(3);
-          PSRAM_Mem_BE_int(1) <= not write_be(2);
+          PSRAM_Mem_BE_int(0) <= not write_be(0);
+          PSRAM_Mem_BE_int(1) <= not write_be(1);
           PSRAM_Mem_DQ_O_int  <= write_data(15 downto 0);
           PSRAM_Mem_DQ_OE_int <= '0';   -- output enable
           if (PSRAM_Mem_WAIT_int = '0') then
-            PSRAM_Mem_BE_int(0) <= not write_be(1);
-            PSRAM_Mem_BE_int(1) <= not write_be(0);
+            PSRAM_Mem_BE_int(0) <= not write_be(2);
+            PSRAM_Mem_BE_int(1) <= not write_be(3);
             PSRAM_Mem_DQ_O_int  <= write_data(31 downto 16);
             state               <= wr_msb;
           else
